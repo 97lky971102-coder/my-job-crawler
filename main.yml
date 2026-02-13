@@ -1,0 +1,25 @@
+name: JobCrawler
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+jobs:
+  run-crawler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Run
+        run: python crawler.py
+      - name: Save
+        run: |
+          git config --global user.name "bot"
+          git config --global user.email "bot@github.com"
+          git add job_list.txt
+          git commit -m "update" || exit 0
+          git push
