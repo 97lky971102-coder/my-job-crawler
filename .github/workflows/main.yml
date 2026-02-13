@@ -1,0 +1,31 @@
+name: JobCrawler
+
+on:
+  schedule:
+    - cron: '0 19 * * *' # 한국시간 새벽 4시마다 자동 실행
+  workflow_dispatch: # 형님이 원할 때 버튼 눌러서 실행 가능하게 함
+
+jobs:
+  run-crawler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 # 형님이 올린 crawler.py 가져오기
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 # 크롤링 도구 설치
+        
+      - name: Run Crawler
+        run: python crawler.py # 우리가 만든 수집기 실행!
+        
+      - name: Save Result
+        run: |
+          git config --global user.name "crawler-bot"
+          git config --global user.email "bot@github.com"
+          git add job_list.txt
+          git commit -m "데이터 업데이트 완료" || exit 0
+          git push
